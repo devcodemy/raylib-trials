@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <time.h>
+
 #include "raylib.h"
 #include "raymath.h"
 
@@ -7,10 +8,12 @@
 
 const int screenWidth = 600;
 const int screenHeight = 600;
+
 const Vector2 screenSize = { screenWidth, screenHeight };
 #define NEARBLACK CLITERAL(Color){15, 15, 15, 255}
 
 #define MAX_ASTEROIDS 64
+static AsteroidSize _sizes[] = { ASTEROID_SMALL, ASTEROID_MEDIUM, ASTEROID_LARGE };
 static Asteroid _asteroids[MAX_ASTEROIDS] = {0};
 
 void UpdateDrawFrame();
@@ -42,7 +45,9 @@ void UpdateDrawFrame()
 
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
     {
-        AddAsteroid(GetMousePosition(), (Vector2){200, 0}, ASTEROID_SMALL);
+        AsteroidSize nextSize = _sizes[GetRandomValue(0, 3)];
+        TraceLog(LOG_INFO, "Next size: %d", (int)nextSize);
+        AddAsteroid(GetMousePosition(), (Vector2){200, 0}, nextSize);
     }
 
     BeginDrawing();
@@ -54,11 +59,6 @@ void UpdateDrawFrame()
         }
 
     EndDrawing();
-}
-
-void AsteroidDraw(Asteroid asteroid)
-{
-    DrawPolyLines(asteroid.position, 3, 64, asteroid.rotation, WHITE);
 }
 
 void AddAsteroid(Vector2 position, Vector2 velocity, AsteroidSize size)
@@ -84,18 +84,3 @@ void AddAsteroid(Vector2 position, Vector2 velocity, AsteroidSize size)
         TraceLog(LOG_ERROR, "AAAA not created; no innactive spots in _array");
     }
 }
-
-// void AddAsteroid(Vector2 position, Vector2 velocity, AsteroidSize size)
-// {
-//     Asteroid asteroid = CreateAsteroid(position, velocity, size);
-
-//     for (int i = 0; i < MAX_ASTEROIDS; i++)
-//     {
-//         if (_asteroids[i].active)
-//         {
-//             continue;
-//         }
-
-//         _asteroids[i] = asteroid;
-//     }
-// }

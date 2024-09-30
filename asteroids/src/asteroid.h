@@ -2,7 +2,6 @@
 #define ASTEROID_H_
 
 #include "raylib.h"
-// #include "raymath.h"
 
 #define ASTEROID_ROT_SPEED_MIN 5
 #define ASTEROID_ROT_SPEED_MAX 240

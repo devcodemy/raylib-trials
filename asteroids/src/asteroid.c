@@ -22,3 +22,8 @@ void AsteroidUpdate(Asteroid *asteroid, float frametime)
     asteroid->position = Vector2Add(asteroid->position, Vector2Scale(asteroid->velocity, frametime));
     asteroid->rotation += asteroid->rotationSpeed * frametime;
 }
+
+void AsteroidDraw(Asteroid asteroid)
+{
+    DrawPolyLines(asteroid.position, 3, 16 * (int)(asteroid.size), asteroid.rotation, WHITE);
+}
