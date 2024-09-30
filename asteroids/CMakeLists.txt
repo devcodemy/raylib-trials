@@ -28,7 +28,7 @@ endif()
 
 # Our Project
 # add_executable(${PROJECT_NAME})
-add_executable(${PROJECT_NAME} src/app.cpp)
+add_executable(${PROJECT_NAME} src/main.c)
 add_subdirectory(src)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
