@@ -1,0 +1,5 @@
+[*] asteroids: https://www.youtube.com/watch?v=abIlGCx_Yq8
+    [ done ] part 1 -> https://www.youtube.com/watch?v=abIlGCx_Yq8
+    [ _que ] part 2 -> https://www.youtube.com/watch?v=ClRtJs_ooVk
+    [ _opn ] part 3 -> https://www.youtube.com/watch?v=60n46KbSvUg
+    [ _opn ] part 4 -> https://www.youtube.com/watch?v=jkmT101cMVY
