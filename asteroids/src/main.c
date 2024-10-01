@@ -28,6 +28,7 @@ static AsteroidSize _sizes[] = { ASTEROID_SMALL, ASTEROID_MEDIUM, ASTEROID_LARGE
 static Asteroid _asteroids[MAX_ASTEROIDS] = {0};
 
 void UpdateDrawFrame();
+Vector2 GetNextAsteroidPosition(void);
 void AddAsteroid(Vector2 position, AsteroidSize size);
 // void AddAsteroid(Vector2 position, Vector2 velocity, AsteroidSize size);
 
@@ -62,8 +63,9 @@ void UpdateDrawFrame()
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
     {
         AsteroidSize nextSize = _sizes[GetRandomValue(0, 3)];
-        TraceLog(LOG_INFO, "Next size: %d", (int)nextSize);
-        AddAsteroid(GetMousePosition(), nextSize);
+        // TraceLog(LOG_INFO, "Next size: %d", (int)nextSize);
+        AddAsteroid(GetNextAsteroidPosition(), nextSize);
+        // AddAsteroid(GetMousePosition(), nextSize);
         // AddAsteroid(GetMousePosition(), (Vector2){200, 0}, nextSize);
     }
 
@@ -120,4 +122,30 @@ void AddAsteroid(Vector2 position, AsteroidSize size)
     {
         TraceLog(LOG_ERROR, "AAAA not created; no innactive spots in _array");
     }
+}
+
+Vector2 GetNextAsteroidPosition(void)
+{
+    int padding = 128;
+    Vector2 result = { -padding, - padding };
+
+    if (GetRandomValue(0, 1))
+    {
+        if (GetRandomValue(0, 1))
+        {
+            result.y = screenHeight + padding;
+        }
+        result.x = GetRandomValue(-padding, screenWidth + padding);
+    }
+    else
+    {
+        if (GetRandomValue(0, 1))
+        {
+            result.x = screenWidth + padding;
+        }
+        result.y = GetRandomValue(-padding, screenHeight + padding);
+    }
+
+    TraceLog(LOG_INFO, "Next position: { %d, %d }", (int)result.x, (int)result.y);
+    return result;
 }
