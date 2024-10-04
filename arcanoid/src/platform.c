@@ -1,34 +1,33 @@
 #include "raylib.h"
 #include "common.h"
 
-bool UpdatePlatform(Platform *plt, bool back)
+bool UpdatePlatform(Platform *plt, bool back, bool followBall, Ball *ball)
 {
-    if (!back && plt->posX < 5 || !back && plt->posX> SCREEN_WIDTH - plt->width)
+    if (!followBall)
     {
-        plt->speed = -plt->speed;
-        plt->posX = plt->posX + plt->speed;
-        // TraceLog(LOG_INFO, "BACK");
-        return true;
-    }
+        if (!back && plt->posX < 5 || !back && plt->posX > SCREEN_WIDTH - plt->width)
+        {
+            plt->speed = -plt->speed;
+            plt->posX = plt->posX + plt->speed;
+            return true;
+        }
 
-    plt->posX = plt->posX + plt->speed;
+        plt->posX = plt->posX + plt->speed;
+    } 
+    else
+    {
+        plt->posX = ball->position.x - plt->width / 2;
+    }
     return false;
 }
 
 bool PlatformCollision(Platform *plt, Ball *ball, bool jump)
 {
-    int minX = plt->posX;
-    int maxX = plt->posX + plt->width;
-
-    int minY = plt->posY;
-    int maxY = plt->posY + 3;
-
-    if (ball->position.x > minX && ball->position.x < maxX)
+    if (ball->position.x >= plt->posX  && ball->position.x <= plt->posX + plt->width)
     {
-        if (ball->position.y >= minY && ball->position.y < maxY && !jump)
+        if (ball->position.y >= plt->posY && ball->position.y <= plt->posY + plt->height / 2 && !jump)
         {
             ball->velocity.y = -ball->velocity.y;
-            // TraceLog(LOG_INFO, "JUMP");
             return true;
         }
     }

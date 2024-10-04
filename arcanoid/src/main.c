@@ -4,39 +4,41 @@
 #include "raylib.h"
 #include "raymath.h"
 
-#include "block.h"
 #include "common.h"
 
+static bool _followBall = false;
 static bool _showDebugInfo = false;
 static bool _bottomJumpForced = false;
 
+// static bool brickBreak = false;
 static bool jump = false;
 static bool back = false;
 
-static Block _blocks[BLOCK_MAX] = {0};
+static Brick _bricks[BRICK_MAX] = {0};
 static float _lastPlatformUpdate = 0.04f;
 
-const int blockWidth = 75;  // SCREEN_WIDTH / 8;
-const int blockHeight = 15; //(int)blockWidth / 5;
+const int brickWidth = 75;  // SCREEN_WIDTH / 8;
+const int brickHeight = 15; //(int)brickkWidth / 5;
 
 const int platformWidth = SCREEN_WIDTH / 5; // div by 8 = 75
-const int platformHeight = blockWidth / 5;
+const int platformHeight = brickWidth / 5;
 
 const int ballRadius = platformHeight / 2;
-const Vector2 ballStartVelocity = {8, -6};
+const Vector2 ballStartVelocity = {10, -8};
+// const Vector2 ballStartVelocity = {8, -6};
 
 void MakeWall()
 {
     int idx = 0, mutX = 8, mutY = 8;
-    for (int j = 1; j < BLOCK_MAX + 1; j++)
+    for (int j = 1; j < BRICK_MAX + 1; j++)
     {
         if (j > 1)
         {
-            _blocks[idx] = CreateBlock(mutX, mutY, 1, true);
+            _bricks[idx] = CreateBrick(mutX, mutY, 1, (Size2d){brickWidth, brickHeight}, true);
         }
         mutX += 85;
 
-        if (j % MAGIC_EIGHT == 0) // 8 it is about screen width / block width
+        if (j % MAGIC_EIGHT == 0) // 8 it is about screen width / brick width
         {
             mutX = 8, mutY += 25;
         }
@@ -49,7 +51,7 @@ void MakeWall()
 int main(void)
 {
     srand(time(0));
-    InitWindow(SCREEN_WIDTH, SCREEN_DEPTH, "Raylib arcanoid (my own implementation)");
+    InitWindow(SCREEN_WIDTH, SCREEN_DEPTH, "Arcanoid [Raylib]");
     SetTargetFPS(30);
 
     MakeWall();
@@ -68,9 +70,9 @@ int main(void)
         .radius = ballRadius,
     };
 
-    for (int i = 0; i < BLOCK_MAX; i++)
+    for (int i = 0; i < BRICK_MAX; i++)
     {
-        TraceLog(LOG_INFO, "[%d] BLOCK: [%d, %d] %s", i, _blocks[i].posX, _blocks[i].posY, _blocks[i].active ? "active" : "disabled");
+        TraceLog(LOG_INFO, "[%d] BRICK: [%d, %d] %s", i, _bricks[i].posX, _bricks[i].posY, _bricks[i].active ? "active" : "disabled");
     }
 
     while (!WindowShouldClose())
@@ -95,10 +97,11 @@ bool UpdateDrawFrame(Platform *plt, Ball *ball)
     BeginDrawing();
     ClearBackground(NEARBLACK);
 
-    // DRAW BLOCKS
-    for (int i = 0; i < BLOCK_MAX; i++) // 5 blocks are not drawing ??!!
+    // DRAW BRICKS
+    for (int i = 0; i < BRICK_MAX; i++) // 5 bricks are not drawing ??!!
     {
-        BlockDraw(&_blocks[i]);
+        BrickDraw(&_bricks[i]);
+        BrickCollision(&_bricks[i], ball);
     }
 
     // DRAW BALL // UPDATE BALL POSITION
@@ -106,12 +109,15 @@ bool UpdateDrawFrame(Platform *plt, Ball *ball)
 
     // DRAW PLATFORM // UPDATE PLATFORM POSITION
     DrawRectangle(plt->posX, plt->posY, platformWidth, platformHeight, GREEN);
-    jump = PlatformCollision(plt, ball, jump);
+    // jump = PlatformCollision(plt, ball, jump);
+
+    // for (int idx = 0; idx < BRICK_MAX; idx++){}
 
     if (time > _lastPlatformUpdate + SOME_DELAY)
     {
-        back = UpdatePlatform(plt, back);
+        back = UpdatePlatform(plt, back, _followBall, ball);
         UpdateBall(plt, ball);
+        jump = PlatformCollision(plt, ball, jump);
         _lastPlatformUpdate = time;
     }
 
@@ -119,6 +125,11 @@ bool UpdateDrawFrame(Platform *plt, Ball *ball)
     {
         return false;
     } // GAME OVER
+
+    if (IsKeyPressed(KEY_EQUAL))
+    {
+        _followBall = !_followBall;
+    }
 
     if (IsKeyPressed(KEY_A) && plt->speed > 0)
     {
