@@ -8,7 +8,7 @@
 
 #define SOME_DELAY 0.025f
 #define MAGIC_EIGHT 8
-#define BRICK_MAX 30
+#define BRICK_MAX 20
 #define PADDING 5
 
 #define NEARBLACK \
@@ -30,9 +30,11 @@ typedef struct Brick
 
 typedef struct Ball
 {
-    Vector2 position;
-    Vector2 velocity;
     int radius;
+    int posX;
+    int posY;
+    int velX;
+    int velY;
 } Ball;
 
 typedef struct Platform
@@ -45,14 +47,14 @@ typedef struct Platform
 } Platform;
 
 void MakeWall();
+bool UpdateDrawFrame(Platform *plt, Ball *ball);
 
 Brick CreateBrick(int posX, int posY, int level, Size2d brickSize2d, bool isActive);
 void BrickDraw(Brick *block);
 void BrickUpdate(Brick *block, int level, bool isActive);
 
+void UpdateBall(Ball *ball);
 bool UpdatePlatform(Platform *plt, bool back, bool followBall, Ball *ball);
-void UpdateBall(Platform *plt, Ball *ball);
-bool UpdateDrawFrame(Platform *plt, Ball *ball);
 
 void BrickCollision(Brick *brick, Ball *ball);
 bool PlatformCollision(Platform *plt, Ball *ball, bool jump);

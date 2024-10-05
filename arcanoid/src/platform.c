@@ -16,18 +16,18 @@ bool UpdatePlatform(Platform *plt, bool back, bool followBall, Ball *ball)
     } 
     else
     {
-        plt->posX = ball->position.x - plt->width / 2;
+        plt->posX = ball->posX - plt->width / 2;
     }
     return false;
 }
 
 bool PlatformCollision(Platform *plt, Ball *ball, bool jump)
 {
-    if (ball->position.x >= plt->posX  && ball->position.x <= plt->posX + plt->width)
+    if (ball->posX >= plt->posX  && ball->posX <= plt->posX + plt->width)
     {
-        if (ball->position.y >= plt->posY && ball->position.y <= plt->posY + plt->height / 2 && !jump)
+        if (ball->posY >= plt->posY && ball->posY <= plt->posY + plt->height / 2 && !jump)
         {
-            ball->velocity.y = -ball->velocity.y;
+            ball->velY = -ball->velY;
             return true;
         }
     }

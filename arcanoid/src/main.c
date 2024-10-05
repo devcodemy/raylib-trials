@@ -6,7 +6,8 @@
 
 #include "common.h"
 
-static bool _followBall = false;
+// static bool _followBall = false;
+static bool _followBall = true;
 static bool _showDebugInfo = false;
 static bool _bottomJumpForced = false;
 
@@ -18,14 +19,15 @@ static Brick _bricks[BRICK_MAX] = {0};
 static float _lastPlatformUpdate = 0.04f;
 
 const int brickWidth = 75;  // SCREEN_WIDTH / 8;
-const int brickHeight = 15; //(int)brickkWidth / 5;
+const int brickHeight = 35; //(int)brickkWidth / 5;
+// const int brickHeight = 15; //(int)brickkWidth / 5;
 
 const int platformWidth = SCREEN_WIDTH / 5; // div by 8 = 75
 const int platformHeight = brickWidth / 5;
 
 const int ballRadius = platformHeight / 2;
-const Vector2 ballStartVelocity = {10, -8};
-// const Vector2 ballStartVelocity = {8, -6};
+const int ballStartVelX = 10;
+const int ballStartVelY = -8;
 
 void MakeWall()
 {
@@ -36,11 +38,13 @@ void MakeWall()
         {
             _bricks[idx] = CreateBrick(mutX, mutY, 1, (Size2d){brickWidth, brickHeight}, true);
         }
-        mutX += 85;
+        mutX += brickWidth + PADDING * 2;
+        // mutX += 85;
 
         if (j % MAGIC_EIGHT == 0) // 8 it is about screen width / brick width
         {
-            mutX = 8, mutY += 25;
+            mutX = 8, mutY += brickHeight + PADDING * 2;
+            // mutX = 8, mutY += 25;
         }
 
         idx++;
@@ -65,8 +69,10 @@ int main(void)
     };
 
     Ball ball = (Ball){
-        .position = {SCREEN_WIDTH / 2, SCREEN_DEPTH / 2},
-        .velocity = ballStartVelocity,
+        .posX = SCREEN_WIDTH / 2,
+        .posY = SCREEN_DEPTH / 2,
+        .velX = ballStartVelX,
+        .velY = ballStartVelY,
         .radius = ballRadius,
     };
 
@@ -89,6 +95,21 @@ int main(void)
     return 0;
 }
 
+/*
+
+    for (int i = 0; i < BRICK_MAX; i++){
+        TraceLog(
+            LOG_INFO,
+            "[%d] BRICK: [%d, %d] %s",
+             i,
+             _bricks[i].posX,
+             _bricks[i].posY,
+             _bricks[i].active ? "active" : "disabled"
+        );
+    }
+
+ */
+
 bool UpdateDrawFrame(Platform *plt, Ball *ball)
 {
     float frametime = GetFrameTime();
@@ -101,27 +122,30 @@ bool UpdateDrawFrame(Platform *plt, Ball *ball)
     for (int i = 0; i < BRICK_MAX; i++) // 5 bricks are not drawing ??!!
     {
         BrickDraw(&_bricks[i]);
-        BrickCollision(&_bricks[i], ball);
+        // BrickCollision(&_bricks[i], ball);
     }
 
     // DRAW BALL // UPDATE BALL POSITION
-    DrawCircle(ball->position.x, ball->position.y, ballRadius, RED);
+    DrawCircle(ball->posX, ball->posY, ballRadius, RED);
 
-    // DRAW PLATFORM // UPDATE PLATFORM POSITION
-    DrawRectangle(plt->posX, plt->posY, platformWidth, platformHeight, GREEN);
-    // jump = PlatformCollision(plt, ball, jump);
-
-    // for (int idx = 0; idx < BRICK_MAX; idx++){}
 
     if (time > _lastPlatformUpdate + SOME_DELAY)
     {
+        for (int i = 0; i < BRICK_MAX; i++) // 5 bricks are not drawing ??!!
+        {
+            BrickCollision(&_bricks[i], ball);
+        }
+
+        // DRAW PLATFORM // UPDATE PLATFORM POSITION
+        DrawRectangle(plt->posX, plt->posY, platformWidth, platformHeight, GREEN);
         back = UpdatePlatform(plt, back, _followBall, ball);
-        UpdateBall(plt, ball);
+        // UPDATE BALL IF PLATFORM
+        UpdateBall(ball);
         jump = PlatformCollision(plt, ball, jump);
         _lastPlatformUpdate = time;
     }
 
-    if (ball->position.y > SCREEN_DEPTH)
+    if (ball->posY > SCREEN_DEPTH)
     {
         return false;
     } // GAME OVER
@@ -171,24 +195,27 @@ bool UpdateDrawFrame(Platform *plt, Ball *ball)
     return true;
 }
 
-void UpdateBall(Platform *plt, Ball *ball)
+void UpdateBall(Ball *ball)
 {
-    if (ball->position.x >= SCREEN_WIDTH - PADDING || ball->position.x <= PADDING)
+    // if (ball->posX >= SCREEN_WIDTH - PADDING || ball->posX <= PADDING)
+    if (ball->posX + ball->radius >= SCREEN_WIDTH || ball->posX <= ball->radius)
     {
-        ball->velocity.x = -ball->velocity.x;
+        ball->velX = -ball->velX;
     }
 
-    if (ball->position.y <= PADDING)
+    // if (ball->posY <= PADDING)
+    if (ball->posY - ball->radius <= ball->radius)
     {
-        ball->velocity.y = -ball->velocity.y;
+        ball->velY = -ball->velY;
     }
 
-    if (ball->position.y >= SCREEN_DEPTH - 10 && _bottomJumpForced)
+    // if (ball->posY >= SCREEN_DEPTH - 10 && _bottomJumpForced)
+    if (ball->posY + ball->radius >= SCREEN_DEPTH - ball->radius && _bottomJumpForced)
     {
-        ball->velocity.y = -ball->velocity.y;
+        ball->velY = -ball->velY;
     }
     // TBD: update if out of bottom border GAME OVER
 
-    ball->position.x = ball->position.x + ball->velocity.x;
-    ball->position.y = ball->position.y + ball->velocity.y;
+    ball->posX = ball->posX + ball->velX;
+    ball->posY = ball->posY + ball->velY;
 }
